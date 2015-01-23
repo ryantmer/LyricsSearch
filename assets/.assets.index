@@ -1,8 +1,9 @@
 1
-6
+7
 Favourites.qml
 images/about.png
 images/favourite.png
 images/search.png
 resources/favourites.json
 Search.qml
+SearchResults.qml

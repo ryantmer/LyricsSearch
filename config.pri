@@ -38,6 +38,7 @@ config_pri_assets {
     OTHER_FILES += \
         $$quote($$BASEDIR/assets/Favourites.qml) \
         $$quote($$BASEDIR/assets/Search.qml) \
+        $$quote($$BASEDIR/assets/SearchResults.qml) \
         $$quote($$BASEDIR/assets/images/about.png) \
         $$quote($$BASEDIR/assets/images/favourite.png) \
         $$quote($$BASEDIR/assets/images/search.png) \

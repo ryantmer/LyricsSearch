@@ -8,17 +8,21 @@
 using namespace bb::cascades;
 
 class LyricWikia : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(QMapListDataModel *favourites READ favourites CONSTANT);
+    Q_OBJECT;
 
 public:
     LyricWikia();
     virtual ~LyricWikia();
-    QMapListDataModel *favourites();
+    Q_INVOKABLE void search(QVariantMap query);
 
 private:
     QMapListDataModel *_favourites;
     NavigationPane *_root;
+    QNetworkConfigurationManager *_netConfigMan;
+    QNetworkAccessManager *_netAccessMan;
+
+private slots:
+    void onFinished(QNetworkReply *reply);
 };
 
 #endif /* LYRICWIKIA_HPP_ */
