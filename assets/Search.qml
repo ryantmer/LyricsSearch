@@ -26,52 +26,51 @@ NavigationPane {
             rightPadding: 20.0
             bottomPadding: 20.0
             
-            //Song
+            
+            Label {
+                text: "Search For Lyrics"
+                horizontalAlignment: HorizontalAlignment.Center
+                textStyle.fontSize: FontSize.XXLarge
+            }
             Container {
                 bottomMargin: 30
                 layout: StackLayout {
                     orientation: LayoutOrientation.LeftToRight
-                }
-                Label {
-                    text: "Song Title"
-                    textStyle.fontSize: FontSize.XLarge
-                    verticalAlignment: VerticalAlignment.Center
                 }
                 TextField {
                     id: songField
-                    hintText: "e.g. You Make Me Sick"
-                }
-            }
-            //Artist
-            Container {
-                bottomMargin: 30
-                layout: StackLayout {
-                    orientation: LayoutOrientation.LeftToRight
+                    hintText: "Song Title"
+                    validator: Validator {
+                        mode: ValidationMode.FocusLost
+                        errorMessage: "Required"
+                        onValidate: {
+                            if (songField.text.length == 0) {
+                                state = ValidationState.Invalid;
+                            } else {
+                                state = ValidationState.Valid;
+                            }
+                        }
+                    }
                 }
                 Label {
-                    text: "Artist"
+                    text: "by"
                     textStyle.fontSize: FontSize.XLarge
                     verticalAlignment: VerticalAlignment.Center
                 }
                 TextField {
                     id: artistField
-                    hintText: "e.g. Of Mice And Men"
-                }
-            }
-            //Album
-            Container {
-                bottomMargin: 30
-                layout: StackLayout {
-                    orientation: LayoutOrientation.LeftToRight
-                }
-                Label {
-                    text: "Album"
-                    textStyle.fontSize: FontSize.XLarge
-                    verticalAlignment: VerticalAlignment.Center
-                }
-                TextField {
-                    id: albumField
-                    hintText: "e.g. Restoring Force"
+                    hintText: "Artist"
+                    validator: Validator {
+                        mode: ValidationMode.FocusLost
+                        errorMessage: "Required"
+                        onValidate: {
+                            if (artistField.text.length == 0) {
+                                state = ValidationState.Invalid;
+                            } else {
+                                state = ValidationState.Valid;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -83,25 +82,33 @@ NavigationPane {
                     navigationPane.push(searchResultsPage);
                     console.log("Searching for song " + songField.text);
                     console.log("Searching for artist " + artistField.text);
-                    console.log("Searching for album " + albumField.text);
                     var query = {};
                     query["song"] = songField.text;
                     query["artist"] = artistField.text;
-                    query["album"] = albumField.text;
                     app.search(query);
                 }
             }
         }
 
-        actions: ActionItem {
-            title: "Favourites"
-            imageSource: "asset:///images/favourite.png"
-            ActionBar.placement: ActionBarPlacement.OnBar
-
-            onTriggered: {
-                navigationPane.push(favouritesPage);
+        actions: [
+            ActionItem {
+                title: "Favourites"
+                imageSource: "asset:///images/favourite.png"
+                ActionBar.placement: ActionBarPlacement.OnBar
+    
+                onTriggered: {
+                    navigationPane.push(favouritesPage);
+                }
+            },
+            ActionItem {
+                title: "Last Search"
+                ActionBar.placement: ActionBarPlacement.OnBar
+                
+                onTriggered: {
+                    navigationPane.push(searchResultsPage);
+                }
             }
-        }
+        ]
     }
 
     attachedObjects: [

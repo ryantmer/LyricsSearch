@@ -3,18 +3,21 @@
 		"artist": "Tool",
 		"album": "",
 		"song": "",
-		"year": ""
+		"year": "",
+		"url": "http://lyrics.wikia.com/Tool"
 	},
 	{
 		"artist": "Linkin Park",
 		"album": "Hybrid Theory",
 		"song": "",
-		"year": "2001"
+		"year": "1999",
+		"url": "http://lyrics.wikia.com/Linkin_Park:Hybrid_Theory_(1999)"
 	},
 	{
 		"artist": "Of Mice And Men",
 		"album": "Restoring Force",
 		"song": "You Make Me Sick",
-		"year": "2014"
+		"year": "2014",
+		"url": "http://lyrics.wikia.com/Of_Mice_%26_Men:You_Make_Me_Sick"
 	}
 ]

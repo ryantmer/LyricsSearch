@@ -12,6 +12,7 @@ LyricWikia::LyricWikia() : QObject() {
     _netConfigMan = new QNetworkConfigurationManager(this);
     _netAccessMan = new QNetworkAccessManager(this);
     _favourites = new QMapListDataModel();
+    _searchResults = new QMapListDataModel();
 
     //Try loading favourites from local file
     JsonDataAccess jda;
@@ -35,6 +36,7 @@ LyricWikia::LyricWikia() : QObject() {
     QDeclarativeEngine *engine = QmlDocument::defaultDeclarativeEngine();
     QDeclarativeContext *rootContext = engine->rootContext();
     rootContext->setContextProperty("favouritesDataModel", _favourites);
+    rootContext->setContextProperty("searchResultsDataModel", _searchResults);
 
     bool ok;
     ok = connect(_netAccessMan, SIGNAL(finished(QNetworkReply*)),
@@ -63,7 +65,6 @@ void LyricWikia::search(QVariantMap query) {
     }
 
     QString artist = query.value("artist").toString();
-    QString album = query.value("album").toString();
     QString song = query.value("song").toString();
 
     QUrl url;
@@ -89,6 +90,31 @@ void LyricWikia::search(QVariantMap query) {
 }
 
 void LyricWikia::onFinished(QNetworkReply *reply) {
+    QString response = reply->readAll();
+    qDebug() << Q_FUNC_INFO << response;
+
+    _searchResults->clear();
+
+    if (reply->error() == QNetworkReply::NoError) {
+        JsonDataAccess jda;
+        QVariantMap map = jda.loadFromBuffer(response).value<QVariantMap>();
+        if (jda.hasError()) {
+            qWarning() << Q_FUNC_INFO << "Couldn't read response into JSON:" << jda.error();
+            qWarning() << Q_FUNC_INFO << response;
+            return;
+        }
+        QString url = map.value("url").toString().replace("%26", "&").replace("%2C", ",");
+        map.remove("url");
+        map.insert("url", url);
+        qDebug() << Q_FUNC_INFO << map;
+        _searchResults->append(map);
+    } else {
+        qWarning() << Q_FUNC_INFO << "Reply from" << reply->url() << "contains error" << reply->errorString();
+        qWarning() << Q_FUNC_INFO << response;
+    }
+
+    reply->deleteLater();
+
     Page *page = _root->top();
     Container *container = page->findChild<Container*>("activityContainer");
     if (container) {
@@ -96,7 +122,4 @@ void LyricWikia::onFinished(QNetworkReply *reply) {
     } else {
         qDebug() << Q_FUNC_INFO << "No activity container on top page";
     }
-
-    QString response = reply->readAll();
-    qDebug() << Q_FUNC_INFO << response;
 }

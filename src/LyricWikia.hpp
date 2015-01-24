@@ -17,6 +17,7 @@ public:
 
 private:
     QMapListDataModel *_favourites;
+    QMapListDataModel *_searchResults;
     NavigationPane *_root;
     QNetworkConfigurationManager *_netConfigMan;
     QNetworkAccessManager *_netAccessMan;

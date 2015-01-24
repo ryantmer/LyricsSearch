@@ -34,24 +34,32 @@ Page {
             ]
             
             onTriggered: {
-                var favourite = dataModel.data(indexPath);
-                console.log("Selected " + favourite);
+                var data = dataModel.data(indexPath);
+                var page = viewLyricsDef.createObject();
+                page.data = data;
+                page.setup();
+                navigationPane.push(page);
             }
             
             function getTitle(data) {
                 if (data.song != "") {
                     return data.song;
-                } else if (data.album != "") {
-                    return data.album + " (" + data.year + ")";
                 } else {
-                    return data.artist + " (artist)";
+                    return data.artist;
                 }
             }
             function getDescription(data) {
                 if (data.song != "") {
-                    return data.artist
+                    return data.artist;
                 }
             }
         }
     }
+    
+    attachedObjects: [
+        ComponentDefinition {
+            id: viewLyricsDef
+            content: ViewLyrics {}
+        }
+    ]
 }
