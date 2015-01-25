@@ -26,11 +26,16 @@ NavigationPane {
             rightPadding: 20.0
             bottomPadding: 20.0
             
-            
             Label {
                 text: "Search For Lyrics"
                 horizontalAlignment: HorizontalAlignment.Center
                 textStyle.fontSize: FontSize.XXLarge
+            }
+            Label {
+                id: warningLabel
+                text: "Artist required"
+                textStyle.color: Color.Red
+                visible: false
             }
             Container {
                 bottomMargin: 30
@@ -51,12 +56,17 @@ NavigationPane {
                     hintText: "Artist"
                 }
             }
-
             Button {
                 text: "Search"
                 verticalAlignment: VerticalAlignment.Center
                 horizontalAlignment: HorizontalAlignment.Center
                 onClicked: {
+                    if (artistField.text == "") {
+                        warningLabel.visible = true;
+                        return;
+                    } else {
+                        warningLabel.visible = false;
+                    }
                     navigationPane.push(searchResultsPage);
                     console.log("Searching for song " + songField.text);
                     console.log("Searching for artist " + artistField.text);

@@ -39,6 +39,7 @@ LyricWikia::LyricWikia() : QObject() {
 
     QDeclarativeEngine *engine = QmlDocument::defaultDeclarativeEngine();
     QDeclarativeContext *rootContext = engine->rootContext();
+    rootContext->setContextProperty("app", this);
     rootContext->setContextProperty("favouritesDataModel", _favourites);
     rootContext->setContextProperty("searchResultsDataModel", _searchResults);
 
@@ -75,17 +76,9 @@ void LyricWikia::search(QVariantMap query) {
     url.setUrl(QString("http://lyrics.wikia.com/api.php"));
 
     url.addQueryItem("fmt", "realjson");
+    url.addQueryItem("artist", artist);
     if (!song.isEmpty()) {
-        //Search for song
-        url.addQueryItem("func", "getSong");
         url.addQueryItem("song", song);
-        if (!artist.isEmpty()) {
-            url.addQueryItem("artist", artist);
-        }
-    } else {
-        //Search for artist
-        url.addQueryItem("func", "getArtist");
-        url.addQueryItem("artist", artist);
     }
 
     qDebug() << Q_FUNC_INFO << url;
@@ -96,7 +89,22 @@ void LyricWikia::search(QVariantMap query) {
 void LyricWikia::addFavourite(QVariantMap fav) {
     qDebug() << Q_FUNC_INFO << "Adding favourite:" << fav;
     _favourites->append(fav);
-    toast("Favourite Added!");
+    toast("Favourite Added");
+}
+
+void LyricWikia::removeFavourite(QVariantMap fav) {
+    qDebug() << Q_FUNC_INFO << "Remove favourite:" << fav;
+
+    for (int i = 0; i < _favourites->size(); ++i) {
+        QVariantMap m = _favourites->value(i);
+        if (fav.value("artist").toString() == m.value("artist").toString() &&
+                fav.value("song").toString() == m.value("song").toString()) {
+            _favourites->removeAt(i);
+            qDebug() << Q_FUNC_INFO << "Favourite removed.";
+            toast("Favourite Removed");
+            return;
+        }
+    }
 }
 
 void LyricWikia::toast(QString message) {
@@ -120,10 +128,17 @@ void LyricWikia::onFinished(QNetworkReply *reply) {
             qWarning() << Q_FUNC_INFO << response;
             return;
         }
-        QUrl url = map.value("url").toUrl();
-        QString newUrl = QUrl::fromPercentEncoding(url.toString().toUtf8());
-        map.remove("url");
-        map.insert("url", newUrl);
+        if (map.value("lyrics").toString() == "Not found") {
+            map.insert("url", "");
+        } else {
+            //Fix special characters in URL
+            QString url = QUrl::fromPercentEncoding(map.value("url").toUrl().toString().toUtf8());
+            map.insert("url", url);
+            //Song and artist come back wacky with special characters, so take them from URL
+            QString info = url.split("http://lyrics.wikia.com/", QString::SkipEmptyParts)[0];
+            map.insert("artist", info.split(":")[0]);
+            map.insert("song", info.split(":")[1]);
+        }
         qDebug() << Q_FUNC_INFO << map;
         _searchResults->append(map);
     } else {

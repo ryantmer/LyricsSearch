@@ -37,16 +37,12 @@ Page {
                     } else if (loadRequest.status == WebLoadStatus.Succeeded) {
                         webView.evaluateJavaScript(
                             "var head = document.getElementsByTagName('head')[0];" +
-                            "head.innerHTML = '';" + 
-                            "var body = document.getElementsByTagName('body')[0];" +
+                            "head.innerHTML = '';" +
+                            "var header = document.getElementById('wkMainCntHdr').getElementsByTagName('h1')[0];" +
                             "var lyrics = document.getElementsByClassName('lyricbox')[0];" +
-                            "var song = document.createElement('h1');" +
-                            "song.innerText = '" + data["song"] + "';" +
-                            "var artist = document.createElement('h6');" +
-                            "artist.innerText = 'Lyrics by " + data["artist"] + "';" +
+                            "var body = document.getElementsByTagName('body')[0];" +
                             "body.innerHTML = '';" +
-                            "body.appendChild(song);" +
-                            "body.appendChild(artist);" +
+                            "body.appendChild(header);" +
                             "body.appendChild(lyrics);"
                             );
                         activity.stop();

@@ -1,4 +1,5 @@
 import bb.cascades 1.2
+import bb.system 1.2
 
 Page {
     titleBar: TitleBar {
@@ -29,6 +30,18 @@ Page {
                         id: favourite
                         title: favourite.ListItem.view.getTitle(ListItemData)
                         description: favourite.ListItem.view.getDescription(ListItemData)
+                        
+                        contextActions: [
+                            ActionSet {
+                                DeleteActionItem {
+                                    title: "Delete Favourite?"
+                                    
+                                    onTriggered: {
+                                        app.removeFavourite(ListItemData);
+                                    }
+                                }
+                            }
+                        ]
                     }
                 }
             ]
