@@ -8,6 +8,9 @@ NavigationPane {
             ActionItem {
                 title: "About"
                 imageSource: "asset:///images/about.png"
+                onTriggered: {
+                    navigationPane.push(about);
+                }
             }
         ]
     }
@@ -21,10 +24,10 @@ NavigationPane {
             layout: StackLayout {
                 orientation: LayoutOrientation.TopToBottom
             }
-            topPadding: 20.0
-            leftPadding: 20.0
-            rightPadding: 20.0
-            bottomPadding: 20.0
+            topPadding: 20
+            rightPadding: 20
+            leftPadding: 20
+            bottomPadding: 20
             
             Label {
                 text: "Search For Lyrics"
@@ -33,43 +36,36 @@ NavigationPane {
             }
             Label {
                 id: warningLabel
-                text: "Artist required"
+                text: "Artist and song required"
                 textStyle.color: Color.Red
                 visible: false
             }
-            Container {
-                bottomMargin: 30
-                layout: StackLayout {
-                    orientation: LayoutOrientation.LeftToRight
-                }
-                TextField {
-                    id: songField
-                    hintText: "Song Title"
-                }
-                Label {
-                    text: "by"
-                    textStyle.fontSize: FontSize.XLarge
-                    verticalAlignment: VerticalAlignment.Center
-                }
-                TextField {
-                    id: artistField
-                    hintText: "Artist"
-                }
+            TextField {
+                id: songField
+                hintText: "Song Title"
+            }
+            Label {
+                text: "by"
+                textStyle.fontSize: FontSize.XLarge
+                horizontalAlignment: HorizontalAlignment.Center
+                verticalAlignment: VerticalAlignment.Center
+            }
+            TextField {
+                id: artistField
+                hintText: "Artist"
             }
             Button {
                 text: "Search"
                 verticalAlignment: VerticalAlignment.Center
                 horizontalAlignment: HorizontalAlignment.Center
                 onClicked: {
-                    if (artistField.text == "") {
+                    if (artistField.text == "" || songField.text == "") {
                         warningLabel.visible = true;
                         return;
                     } else {
                         warningLabel.visible = false;
                     }
                     navigationPane.push(searchResultsPage);
-                    console.log("Searching for song " + songField.text);
-                    console.log("Searching for artist " + artistField.text);
                     var query = {};
                     query["song"] = songField.text;
                     query["artist"] = artistField.text;
@@ -97,6 +93,9 @@ NavigationPane {
         },
         SearchResults {
             id: searchResultsPage
+        },
+        About {
+            id: about
         }
     ]
 }

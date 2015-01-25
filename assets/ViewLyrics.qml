@@ -4,7 +4,6 @@ Page {
     property variant data
     
     function setup() {
-        console.log(data["url"]);
         webView.url = data["url"];
     }
     

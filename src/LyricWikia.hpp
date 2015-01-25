@@ -11,11 +11,17 @@ class LyricWikia : public QObject {
     Q_OBJECT;
 
 public:
+    enum RequestType {
+        Undefined,
+        Artist,
+        Song
+    };
     LyricWikia();
     virtual ~LyricWikia();
     Q_INVOKABLE void search(QVariantMap query);
     Q_INVOKABLE void addFavourite(QVariantMap fav);
     Q_INVOKABLE void removeFavourite(QVariantMap fav);
+    Q_INVOKABLE QString getVersionNumber();
     void toast(QString message);
 
 private:

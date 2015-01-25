@@ -36,6 +36,7 @@ simulator {
 
 config_pri_assets {
     OTHER_FILES += \
+        $$quote($$BASEDIR/assets/About.qml) \
         $$quote($$BASEDIR/assets/Favourites.qml) \
         $$quote($$BASEDIR/assets/Search.qml) \
         $$quote($$BASEDIR/assets/SearchResults.qml) \

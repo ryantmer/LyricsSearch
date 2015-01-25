@@ -7,6 +7,7 @@
 #include <bb/data/JsonDataAccess>
 #include <bb/system/SystemToast>
 #include <bb/system/SystemUiPosition>
+#include <bb/PackageInfo>
 
 using namespace bb::cascades;
 using namespace bb::data;
@@ -60,30 +61,9 @@ LyricWikia::~LyricWikia() {
     jda.save(list, path);
 }
 
-void LyricWikia::search(QVariantMap query) {
-    Page *page = _root->top();
-    Container *container = page->findChild<Container*>("activityContainer");
-    if (container) {
-        container->setVisible(true);
-    } else {
-        qDebug() << Q_FUNC_INFO << "No activity container on top page";
-    }
-
-    QString artist = query.value("artist").toString();
-    QString song = query.value("song").toString();
-
-    QUrl url;
-    url.setUrl(QString("http://lyrics.wikia.com/api.php"));
-
-    url.addQueryItem("fmt", "realjson");
-    url.addQueryItem("artist", artist);
-    if (!song.isEmpty()) {
-        url.addQueryItem("song", song);
-    }
-
-    qDebug() << Q_FUNC_INFO << url;
-    QNetworkRequest req(url);
-    _netAccessMan->get(req);
+QString LyricWikia::getVersionNumber() {
+    bb::PackageInfo pi;
+    return pi.version();
 }
 
 void LyricWikia::addFavourite(QVariantMap fav) {
@@ -114,6 +94,38 @@ void LyricWikia::toast(QString message) {
     toast->show();
 }
 
+void LyricWikia::search(QVariantMap query) {
+    Page *page = _root->top();
+    Container *container = page->findChild<Container*>("activityContainer");
+    if (container) {
+        container->setVisible(true);
+    } else {
+        qDebug() << Q_FUNC_INFO << "No activity container on top page";
+    }
+
+    QString artist = query.value("artist").toString();
+    QString song = query.value("song").toString();
+
+    QUrl url;
+    url.setUrl(QString("http://lyrics.wikia.com/api.php"));
+
+    url.addQueryItem("fmt", "realjson");
+    url.addQueryItem("artist", artist);
+    if (!song.isEmpty()) {
+        url.addQueryItem("song", song);
+    }
+
+    QNetworkRequest req(url);
+    if (!song.isEmpty()) {
+        req.setAttribute(QNetworkRequest::User, QVariant(Song));
+    } else {
+        req.setAttribute(QNetworkRequest::User, QVariant(Artist));
+    }
+
+    qDebug() << Q_FUNC_INFO << url;
+    _netAccessMan->get(req);
+}
+
 void LyricWikia::onFinished(QNetworkReply *reply) {
     QString response = reply->readAll();
     qDebug() << Q_FUNC_INFO << response;
@@ -128,16 +140,24 @@ void LyricWikia::onFinished(QNetworkReply *reply) {
             qWarning() << Q_FUNC_INFO << response;
             return;
         }
-        if (map.value("lyrics").toString() == "Not found") {
-            map.insert("url", "");
-        } else {
-            //Fix special characters in URL
-            QString url = QUrl::fromPercentEncoding(map.value("url").toUrl().toString().toUtf8());
-            map.insert("url", url);
-            //Song and artist come back wacky with special characters, so take them from URL
-            QString info = url.split("http://lyrics.wikia.com/", QString::SkipEmptyParts)[0];
-            map.insert("artist", info.split(":")[0]);
-            map.insert("song", info.split(":")[1]);
+        //User searched for just artist
+        if (reply->request().attribute(QNetworkRequest::User) == Artist) {
+            qDebug() << Q_FUNC_INFO << "Album search results:";
+        }
+        //User searched for songs
+        else if (reply->request().attribute(QNetworkRequest::User) == Song) {
+            if (map.value("lyrics").toString() == "Not found") {
+                map.insert("url", "");
+            } else {
+                //Fix special characters in URL
+                QString url = QUrl::fromPercentEncoding(map.value("url").toUrl().toString().toUtf8());
+                map.insert("url", url);
+                //Song and artist come back wacky with special characters, so take them from URL
+                QString info = url.split("http://lyrics.wikia.com/", QString::SkipEmptyParts)[0];
+                map.insert("artist", info.split(":")[0].replace("_", " "));
+                map.insert("song", info.split(":")[1].replace("_", " "));
+                qDebug() << Q_FUNC_INFO << "Song search results:";
+            }
         }
         qDebug() << Q_FUNC_INFO << map;
         _searchResults->append(map);

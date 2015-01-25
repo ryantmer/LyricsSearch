@@ -71,6 +71,9 @@ Page {
             
             onTriggered: {
                 var data = dataModel.data(indexPath);
+                if (data["url"] == "") {
+                    return;
+                }
                 var page = viewLyricsDef.createObject();
                 page.data = data;
                 page.setup();
