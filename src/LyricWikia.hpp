@@ -14,6 +14,8 @@ public:
     LyricWikia();
     virtual ~LyricWikia();
     Q_INVOKABLE void search(QVariantMap query);
+    Q_INVOKABLE void addFavourite(QVariantMap fav);
+    void toast(QString message);
 
 private:
     QMapListDataModel *_favourites;

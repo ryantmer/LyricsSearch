@@ -1,12 +1,16 @@
 #include "LyricWikia.hpp"
+#include <QUrl>
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/ListView>
 #include <bb/cascades/Container>
 #include <bb/data/JsonDataAccess>
+#include <bb/system/SystemToast>
+#include <bb/system/SystemUiPosition>
 
 using namespace bb::cascades;
 using namespace bb::data;
+using namespace bb::system;
 
 LyricWikia::LyricWikia() : QObject() {
     _netConfigMan = new QNetworkConfigurationManager(this);
@@ -89,6 +93,19 @@ void LyricWikia::search(QVariantMap query) {
     _netAccessMan->get(req);
 }
 
+void LyricWikia::addFavourite(QVariantMap fav) {
+    qDebug() << Q_FUNC_INFO << "Adding favourite:" << fav;
+    _favourites->append(fav);
+    toast("Favourite Added!");
+}
+
+void LyricWikia::toast(QString message) {
+    SystemToast *toast = new SystemToast(this);
+    toast->setBody(message);
+    toast->setPosition(SystemUiPosition::BottomCenter);
+    toast->show();
+}
+
 void LyricWikia::onFinished(QNetworkReply *reply) {
     QString response = reply->readAll();
     qDebug() << Q_FUNC_INFO << response;
@@ -103,9 +120,10 @@ void LyricWikia::onFinished(QNetworkReply *reply) {
             qWarning() << Q_FUNC_INFO << response;
             return;
         }
-        QString url = map.value("url").toString().replace("%26", "&").replace("%2C", ",");
+        QUrl url = map.value("url").toUrl();
+        QString newUrl = QUrl::fromPercentEncoding(url.toString().toUtf8());
         map.remove("url");
-        map.insert("url", url);
+        map.insert("url", newUrl);
         qDebug() << Q_FUNC_INFO << map;
         _searchResults->append(map);
     } else {

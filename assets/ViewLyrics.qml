@@ -10,10 +10,6 @@ Page {
     
     Container {
         layout: DockLayout {}
-        topPadding: 20
-        rightPadding: 20
-        leftPadding: 20
-        bottomPadding: 20
         
         ActivityIndicator {
             id: activity
@@ -21,6 +17,7 @@ Page {
             verticalAlignment: VerticalAlignment.Center
             preferredHeight: 100
         }
+        
         ScrollView {
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
@@ -60,4 +57,16 @@ Page {
             }
         }
     }
+    
+    actions: [
+        ActionItem {
+            title: "Add Favourite"
+            imageSource: "asset:///images/favourite.png"
+            ActionBar.placement: ActionBarPlacement.OnBar
+            
+            onTriggered: {
+                app.addFavourite(data);
+            }
+        }
+    ]
 }

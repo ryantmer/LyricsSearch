@@ -40,17 +40,6 @@ NavigationPane {
                 TextField {
                     id: songField
                     hintText: "Song Title"
-                    validator: Validator {
-                        mode: ValidationMode.FocusLost
-                        errorMessage: "Required"
-                        onValidate: {
-                            if (songField.text.length == 0) {
-                                state = ValidationState.Invalid;
-                            } else {
-                                state = ValidationState.Valid;
-                            }
-                        }
-                    }
                 }
                 Label {
                     text: "by"
@@ -60,22 +49,11 @@ NavigationPane {
                 TextField {
                     id: artistField
                     hintText: "Artist"
-                    validator: Validator {
-                        mode: ValidationMode.FocusLost
-                        errorMessage: "Required"
-                        onValidate: {
-                            if (artistField.text.length == 0) {
-                                state = ValidationState.Invalid;
-                            } else {
-                                state = ValidationState.Valid;
-                            }
-                        }
-                    }
                 }
             }
 
             Button {
-                text: "Search for Lyrics"
+                text: "Search"
                 verticalAlignment: VerticalAlignment.Center
                 horizontalAlignment: HorizontalAlignment.Center
                 onClicked: {
@@ -98,14 +76,6 @@ NavigationPane {
     
                 onTriggered: {
                     navigationPane.push(favouritesPage);
-                }
-            },
-            ActionItem {
-                title: "Last Search"
-                ActionBar.placement: ActionBarPlacement.OnBar
-                
-                onTriggered: {
-                    navigationPane.push(searchResultsPage);
                 }
             }
         ]
