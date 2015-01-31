@@ -1,4 +1,4 @@
-QMAKE_TARGET  = LyricWikia
+QMAKE_TARGET  = LyricsSearch
 LUPDATE       = $(QNX_HOST)/usr/bin/lupdate
 LRELEASE      = $(QNX_HOST)/usr/bin/lrelease
 
@@ -9,4 +9,3 @@ release: $(QMAKE_TARGET).pro $(QMAKE_TARGET).ts
 	$(LRELEASE) $(QMAKE_TARGET).pro
 
 FORCE:
-

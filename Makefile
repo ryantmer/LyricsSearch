@@ -1,4 +1,4 @@
-QMAKE_TARGET  = LyricWikia
+QMAKE_TARGET  = LyricsSearch
 PROJECT_DIR	  := $(dir $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 I18N_DIR	  := $(PROJECT_DIR)/translations
 

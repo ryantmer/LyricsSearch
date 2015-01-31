@@ -1,5 +1,5 @@
-#ifndef LYRICWIKIA_HPP_
-#define LYRICWIKIA_HPP_
+#ifndef LYRICSSEARCH_HPP_
+#define LYRICSSEARCH_HPP_
 
 #include <QObject>
 #include <bb/cascades/QListDataModel>
@@ -7,7 +7,7 @@
 
 using namespace bb::cascades;
 
-class LyricWikia : public QObject {
+class LyricsSearch : public QObject {
     Q_OBJECT;
 
 public:
@@ -16,8 +16,8 @@ public:
         Artist,
         Song
     };
-    LyricWikia();
-    virtual ~LyricWikia();
+    LyricsSearch();
+    virtual ~LyricsSearch();
     Q_INVOKABLE void search(QVariantMap query);
     Q_INVOKABLE void addFavourite(QVariantMap fav);
     Q_INVOKABLE void removeFavourite(QVariantMap fav);
@@ -35,4 +35,4 @@ private slots:
     void onFinished(QNetworkReply *reply);
 };
 
-#endif /* LYRICWIKIA_HPP_ */
+#endif /* LYRICSSEARCH_HPP_ */

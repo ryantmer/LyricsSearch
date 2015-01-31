@@ -49,10 +49,10 @@ config_pri_assets {
 
 config_pri_source_group1 {
     SOURCES += \
-        $$quote($$BASEDIR/src/LyricWikia.cpp) \
+        $$quote($$BASEDIR/src/LyricsSearch.cpp) \
         $$quote($$BASEDIR/src/main.cpp)
 
-    HEADERS += $$quote($$BASEDIR/src/LyricWikia.hpp)
+    HEADERS += $$quote($$BASEDIR/src/LyricsSearch.hpp)
 }
 
 CONFIG += precompile_header

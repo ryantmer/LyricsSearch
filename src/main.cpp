@@ -1,4 +1,4 @@
-#include "LyricWikia.hpp"
+#include "LyricsSearch.hpp"
 #include <bb/cascades/Application>
 #include <QLocale>
 #include <QTranslator>
@@ -26,6 +26,6 @@ void messageOutput(QtMsgType type, const char *msg) {
 Q_DECL_EXPORT int main(int argc, char **argv) {
     qInstallMsgHandler(messageOutput);
     Application app(argc, argv);
-    LyricWikia lyricWikia;
+    LyricsSearch lyricWikia;
     return Application::exec();
 }

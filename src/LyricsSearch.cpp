@@ -1,4 +1,4 @@
-#include "LyricWikia.hpp"
+#include "LyricsSearch.hpp"
 #include <QUrl>
 #include <bb/cascades/Application>
 #include <bb/cascades/QmlDocument>
@@ -15,7 +15,7 @@ using namespace bb::system;
 
 QString favouritesPath = QDir::currentPath() + "/data/favourites.json";
 
-LyricWikia::LyricWikia() : QObject() {
+LyricsSearch::LyricsSearch() : QObject() {
     _netConfigMan = new QNetworkConfigurationManager(this);
     _netAccessMan = new QNetworkAccessManager(this);
     _favourites = new QMapListDataModel();
@@ -53,7 +53,7 @@ LyricWikia::LyricWikia() : QObject() {
     Q_UNUSED(ok);
 }
 
-LyricWikia::~LyricWikia() {
+LyricsSearch::~LyricsSearch() {
     QFile file(favouritesPath);
     qDebug() << Q_FUNC_INFO << "Saving favourites to" << file.fileName();
     JsonDataAccess jda(&file);
@@ -70,12 +70,12 @@ LyricWikia::~LyricWikia() {
     }
 }
 
-QString LyricWikia::getVersionNumber() {
+QString LyricsSearch::getVersionNumber() {
     bb::PackageInfo pi;
     return pi.version();
 }
 
-void LyricWikia::addFavourite(QVariantMap fav) {
+void LyricsSearch::addFavourite(QVariantMap fav) {
     qDebug() << Q_FUNC_INFO << "Adding favourite:" << fav;
     fav.remove("lyrics");
     fav.remove("isOnTakedownList");
@@ -85,7 +85,7 @@ void LyricWikia::addFavourite(QVariantMap fav) {
     toast("Favourite Added");
 }
 
-void LyricWikia::removeFavourite(QVariantMap fav) {
+void LyricsSearch::removeFavourite(QVariantMap fav) {
     qDebug() << Q_FUNC_INFO << "Remove favourite:" << fav;
 
     for (int i = 0; i < _favourites->size(); ++i) {
@@ -100,14 +100,14 @@ void LyricWikia::removeFavourite(QVariantMap fav) {
     }
 }
 
-void LyricWikia::toast(QString message) {
+void LyricsSearch::toast(QString message) {
     SystemToast *toast = new SystemToast(this);
     toast->setBody(message);
     toast->setPosition(SystemUiPosition::BottomCenter);
     toast->show();
 }
 
-void LyricWikia::search(QVariantMap query) {
+void LyricsSearch::search(QVariantMap query) {
     Page *page = _root->top();
     Container *container = page->findChild<Container*>("activityContainer");
     if (container) {
@@ -139,7 +139,7 @@ void LyricWikia::search(QVariantMap query) {
     _netAccessMan->get(req);
 }
 
-void LyricWikia::onFinished(QNetworkReply *reply) {
+void LyricsSearch::onFinished(QNetworkReply *reply) {
     QString response = reply->readAll();
     qDebug() << Q_FUNC_INFO << response;
 
