@@ -13,6 +13,8 @@ using namespace bb::cascades;
 using namespace bb::data;
 using namespace bb::system;
 
+QString favouritesPath = QDir::currentPath() + "/data/favourites.json";
+
 LyricWikia::LyricWikia() : QObject() {
     _netConfigMan = new QNetworkConfigurationManager(this);
     _netAccessMan = new QNetworkAccessManager(this);
@@ -20,12 +22,12 @@ LyricWikia::LyricWikia() : QObject() {
     _searchResults = new QMapListDataModel();
 
     //Try loading favourites from local file
-    JsonDataAccess jda;
-    QString path = QDir::currentPath() + "/app/native/assets/resources/favourites.json";
-    QVariantList list = jda.load(path).value<QVariantList>();
+    QFile file(favouritesPath);
+    qDebug() << Q_FUNC_INFO << "Reading favourites from" << file.fileName();
+    JsonDataAccess jda(&file);
+    QVariantList list = jda.load(&file).value<QVariantList>();
     if (jda.hasError()) {
         qWarning() << Q_FUNC_INFO << "Could not read favourites" << jda.error();
-        return;
     }
     foreach (QVariant v, list) {
         QVariantMap data = v.toMap();
@@ -52,13 +54,20 @@ LyricWikia::LyricWikia() : QObject() {
 }
 
 LyricWikia::~LyricWikia() {
-    JsonDataAccess jda;
-    QString path = QDir::currentPath() + "/app/native/assets/resources/favourites.json";
+    QFile file(favouritesPath);
+    qDebug() << Q_FUNC_INFO << "Saving favourites to" << file.fileName();
+    JsonDataAccess jda(&file);
     QVariantList list;
     for (int i = 0; i < _favourites->size(); ++i) {
         list.append(_favourites->value(i));
     }
-    jda.save(list, path);
+    jda.save(list, &file);
+    if (jda.hasError()) {
+        qDebug() << Q_FUNC_INFO << "Couldn't save favourites!";
+        qDebug() << Q_FUNC_INFO << jda.error();
+    } else {
+        file.close();
+    }
 }
 
 QString LyricWikia::getVersionNumber() {
@@ -68,6 +77,10 @@ QString LyricWikia::getVersionNumber() {
 
 void LyricWikia::addFavourite(QVariantMap fav) {
     qDebug() << Q_FUNC_INFO << "Adding favourite:" << fav;
+    fav.remove("lyrics");
+    fav.remove("isOnTakedownList");
+    fav.remove("page_id");
+    fav.remove("page_namespace");
     _favourites->append(fav);
     toast("Favourite Added");
 }
