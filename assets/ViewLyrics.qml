@@ -44,10 +44,13 @@ Page {
                             "body.appendChild(header);" +
                             "body.appendChild(lyrics);"
                             );
-                        activity.stop();
-                        activity.visible = false;
-                        webView.opacity = 1.0;
                     }
+                }
+                
+                onJavaScriptResult: {
+                    activity.stop();
+                    activity.visible = false;
+                    webView.opacity = 1.0;
                 }
             }
         }
