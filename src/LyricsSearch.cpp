@@ -29,6 +29,7 @@ LyricsSearch::LyricsSearch() : QObject() {
     if (jda.hasError()) {
         qWarning() << Q_FUNC_INFO << "Could not read favourites" << jda.error();
     }
+
     foreach (QVariant v, list) {
         QVariantMap data = v.toMap();
         _favourites->append(data);
@@ -153,9 +154,16 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
             qWarning() << Q_FUNC_INFO << response;
             return;
         }
+        qDebug() << Q_FUNC_INFO << map;
         //User searched for just artist
         if (reply->request().attribute(QNetworkRequest::User) == Artist) {
-            qDebug() << Q_FUNC_INFO << "Album search results:";
+            QVariantList albums = map.value("albums").toList();
+            foreach (QVariant v, albums) {
+                QVariantMap m = v.toMap();
+                m.insert("artist", map.value("artist"));
+                qDebug() << m;
+                _searchResults->append(m);
+            }
         }
         //User searched for songs
         else if (reply->request().attribute(QNetworkRequest::User) == Song) {
@@ -169,11 +177,9 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 QString info = url.split("http://lyrics.wikia.com/", QString::SkipEmptyParts)[0];
                 map.insert("artist", info.split(":")[0].replace("_", " "));
                 map.insert("song", info.split(":")[1].replace("_", " "));
-                qDebug() << Q_FUNC_INFO << "Song search results:";
             }
+            _searchResults->append(map);
         }
-        qDebug() << Q_FUNC_INFO << map;
-        _searchResults->append(map);
     } else {
         qWarning() << Q_FUNC_INFO << "Reply from" << reply->url() << "contains error" << reply->errorString();
         qWarning() << Q_FUNC_INFO << response;

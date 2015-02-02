@@ -39,7 +39,8 @@ config_pri_assets {
         $$quote($$BASEDIR/assets/About.qml) \
         $$quote($$BASEDIR/assets/Favourites.qml) \
         $$quote($$BASEDIR/assets/Search.qml) \
-        $$quote($$BASEDIR/assets/SearchResults.qml) \
+        $$quote($$BASEDIR/assets/SearchArtistResults.qml) \
+        $$quote($$BASEDIR/assets/SearchSongResults.qml) \
         $$quote($$BASEDIR/assets/ViewLyrics.qml) \
         $$quote($$BASEDIR/assets/images/about.png) \
         $$quote($$BASEDIR/assets/images/favourite.png) \

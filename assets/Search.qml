@@ -34,12 +34,6 @@ NavigationPane {
                 horizontalAlignment: HorizontalAlignment.Center
                 textStyle.fontSize: FontSize.XXLarge
             }
-            Label {
-                id: warningLabel
-                text: "Artist and song required"
-                textStyle.color: Color.Red
-                visible: false
-            }
             TextField {
                 id: songField
                 hintText: "Song Title"
@@ -54,21 +48,33 @@ NavigationPane {
                 id: artistField
                 hintText: "Artist"
             }
+            Label {
+                id: warningLabel
+                text: "Artist required"
+                textStyle.color: Color.Red
+                visible: false
+            }
             Button {
                 text: "Search"
                 verticalAlignment: VerticalAlignment.Center
                 horizontalAlignment: HorizontalAlignment.Center
                 onClicked: {
-                    if (artistField.text == "" || songField.text == "") {
+                    if (artistField.text == "") {
                         warningLabel.visible = true;
                         return;
                     } else {
                         warningLabel.visible = false;
                     }
-                    navigationPane.push(searchResultsPage);
+                    
+//                    if (songField.text == "") {
+//                        navigationPane.push(searchArtistResultsPage);
+//                    } else {
+//                        navigationPane.push(searchSongResultsPage);
+//                    }
+                    navigationPane.push(searchSongResultsPage);
                     var query = {};
-                    query["song"] = songField.text;
-                    query["artist"] = artistField.text;
+                    query.song = songField.text;
+                    query.artist = artistField.text;
                     app.search(query);
                 }
             }
@@ -91,8 +97,11 @@ NavigationPane {
         Favourites {
             id: favouritesPage
         },
-        SearchResults {
-            id: searchResultsPage
+        SearchSongResults {
+            id: searchSongResultsPage
+        },
+        SearchArtistResults {
+            id: searchArtistResultsPage
         },
         About {
             id: about

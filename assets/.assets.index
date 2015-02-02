@@ -1,5 +1,5 @@
 1
-9
+10
 About.qml
 Favourites.qml
 images/about.png
@@ -7,5 +7,6 @@ images/favourite.png
 images/search.png
 resources/favourites.json
 Search.qml
-SearchResults.qml
+SearchArtistResults.qml
+SearchSongResults.qml
 ViewLyrics.qml

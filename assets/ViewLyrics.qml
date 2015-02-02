@@ -4,7 +4,7 @@ Page {
     property variant data
     
     function setup() {
-        webView.url = data["url"];
+        webView.url = data.url;
     }
     
     Container {
@@ -36,11 +36,11 @@ Page {
                     } else if (loadRequest.status == WebLoadStatus.Succeeded) {
                         webView.evaluateJavaScript(
                             "var head = document.getElementsByTagName('head')[0];" +
-                            "head.innerHTML = '';" +
+                            "while (head.firstChild) { head.removeChild(head.firstChild); }" +
                             "var header = document.getElementById('wkMainCntHdr').getElementsByTagName('h1')[0];" +
                             "var lyrics = document.getElementsByClassName('lyricbox')[0];" +
                             "var body = document.getElementsByTagName('body')[0];" +
-                            "body.innerHTML = '';" +
+                            "while (body.firstChild) { body.removeChild(body.firstChild); }" +
                             "body.appendChild(header);" +
                             "body.appendChild(lyrics);"
                             );
