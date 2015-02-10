@@ -14,7 +14,8 @@ public:
     enum RequestType {
         Undefined,
         Artist,
-        Song
+        Song,
+        Album
     };
     LyricsSearch();
     virtual ~LyricsSearch();
@@ -26,7 +27,7 @@ public:
 
 private:
     QMapListDataModel *_favourites;
-    QMapListDataModel *_searchResults;
+    QMapListDataModel *_results;
     NavigationPane *_root;
     QNetworkConfigurationManager *_netConfigMan;
     QNetworkAccessManager *_netAccessMan;

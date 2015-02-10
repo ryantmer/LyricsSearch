@@ -38,12 +38,6 @@ NavigationPane {
                 id: songField
                 hintText: "Song Title"
             }
-            Label {
-                text: "by"
-                textStyle.fontSize: FontSize.XLarge
-                horizontalAlignment: HorizontalAlignment.Center
-                verticalAlignment: VerticalAlignment.Center
-            }
             TextField {
                 id: artistField
                 hintText: "Artist"
@@ -53,6 +47,10 @@ NavigationPane {
                 text: "Artist required"
                 textStyle.color: Color.Red
                 visible: false
+            }
+            TextField {
+                id: albumField
+                hintText: "Album"
             }
             Button {
                 text: "Search"
@@ -66,15 +64,11 @@ NavigationPane {
                         warningLabel.visible = false;
                     }
                     
-//                    if (songField.text == "") {
-//                        navigationPane.push(searchArtistResultsPage);
-//                    } else {
-//                        navigationPane.push(searchSongResultsPage);
-//                    }
-                    navigationPane.push(searchSongResultsPage);
+                    navigationPane.push(searchResultsPage);
                     var query = {};
                     query.song = songField.text;
                     query.artist = artistField.text;
+                    query.album = albumField.text;
                     app.search(query);
                 }
             }
@@ -97,11 +91,8 @@ NavigationPane {
         Favourites {
             id: favouritesPage
         },
-        SearchSongResults {
-            id: searchSongResultsPage
-        },
-        SearchArtistResults {
-            id: searchArtistResultsPage
+        SearchResults {
+            id: searchResultsPage
         },
         About {
             id: about

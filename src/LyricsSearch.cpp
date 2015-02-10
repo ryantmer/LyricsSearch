@@ -19,7 +19,7 @@ LyricsSearch::LyricsSearch() : QObject() {
     _netConfigMan = new QNetworkConfigurationManager(this);
     _netAccessMan = new QNetworkAccessManager(this);
     _favourites = new QMapListDataModel();
-    _searchResults = new QMapListDataModel();
+    _results = new QMapListDataModel();
 
     //Try loading favourites from local file
     QFile file(favouritesPath);
@@ -45,7 +45,7 @@ LyricsSearch::LyricsSearch() : QObject() {
     QDeclarativeContext *rootContext = engine->rootContext();
     rootContext->setContextProperty("app", this);
     rootContext->setContextProperty("favouritesDataModel", _favourites);
-    rootContext->setContextProperty("searchResultsDataModel", _searchResults);
+    rootContext->setContextProperty("resultsDataModel", _results);
 
     bool ok;
     ok = connect(_netAccessMan, SIGNAL(finished(QNetworkReply*)),
@@ -119,6 +119,7 @@ void LyricsSearch::search(QVariantMap query) {
 
     QString artist = query.value("artist").toString();
     QString song = query.value("song").toString();
+    QString album = query.value("album").toString();
 
     QUrl url;
     url.setUrl(QString("http://lyrics.wikia.com/api.php"));
@@ -132,6 +133,8 @@ void LyricsSearch::search(QVariantMap query) {
     QNetworkRequest req(url);
     if (!song.isEmpty()) {
         req.setAttribute(QNetworkRequest::User, QVariant(Song));
+    } else if (!album.isEmpty()) {
+        req.setAttribute(QNetworkRequest::User, QVariant(Album));
     } else {
         req.setAttribute(QNetworkRequest::User, QVariant(Artist));
     }
@@ -144,7 +147,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
     QString response = reply->readAll();
     qDebug() << Q_FUNC_INFO << response;
 
-    _searchResults->clear();
+    _results->clear();
 
     if (reply->error() == QNetworkReply::NoError) {
         JsonDataAccess jda;
@@ -154,21 +157,37 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
             qWarning() << Q_FUNC_INFO << response;
             return;
         }
-        qDebug() << Q_FUNC_INFO << map;
-        //User searched for just artist
+        //Should just end up with a list of songs in all cases
+        //User searched for artist
         if (reply->request().attribute(QNetworkRequest::User) == Artist) {
             QVariantList albums = map.value("albums").toList();
-            foreach (QVariant v, albums) {
-                QVariantMap m = v.toMap();
-                m.insert("artist", map.value("artist"));
-                qDebug() << m;
-                _searchResults->append(m);
+            QString artist = map.value("artist").toString();
+            foreach (QVariant album, albums) {
+                QVariantMap a = QVariantMap();
+                a.insert("type", "album");
+                a.insert("album", album.toMap().value("album").toString());
+                a.insert("artist", artist);
+                a.insert("year", album.toMap().value("year").toString());
+                _results->append(a);
+
+                QVariantList songs = album.toMap().value("songs").toList();
+                foreach (QVariant song, songs) {
+                    QVariantMap s = QVariantMap();
+                    s.insert("type", "song");
+                    s.insert("artist", artist);
+                    s.insert("song", song.toString());
+                    s.insert("lyrics", "");
+                    QString baseUrl = "http://lyrics.wikia.com/";
+                    s.insert("url", baseUrl + artist + ":" + song.toString().replace(" ", "_"));
+                    _results->append(s);
+                }
             }
         }
-        //User searched for songs
+        //User searched for artist + song
         else if (reply->request().attribute(QNetworkRequest::User) == Song) {
+            map.insert("type", "song");
             if (map.value("lyrics").toString() == "Not found") {
-                map.insert("url", "");
+                map.remove("url");
             } else {
                 //Fix special characters in URL
                 QString url = QUrl::fromPercentEncoding(map.value("url").toUrl().toString().toUtf8());
@@ -178,7 +197,10 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 map.insert("artist", info.split(":")[0].replace("_", " "));
                 map.insert("song", info.split(":")[1].replace("_", " "));
             }
-            _searchResults->append(map);
+            _results->append(map);
+        }
+        //User searched for artist + album
+        else if (reply->request().attribute(QNetworkRequest::User) == Album) {
         }
     } else {
         qWarning() << Q_FUNC_INFO << "Reply from" << reply->url() << "contains error" << reply->errorString();
