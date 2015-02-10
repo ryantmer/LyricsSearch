@@ -35,14 +35,15 @@ Page {
                         webView.opacity = 0.1;
                     } else if (loadRequest.status == WebLoadStatus.Succeeded) {
                         webView.evaluateJavaScript(
-                            "var head = document.getElementsByTagName('head')[0];" +
-                            "while (head.firstChild) { head.removeChild(head.firstChild); }" +
-                            "var header = document.getElementById('wkMainCntHdr').getElementsByTagName('h1')[0];" +
-                            "var lyrics = document.getElementsByClassName('lyricbox')[0];" +
-                            "var body = document.getElementsByTagName('body')[0];" +
-                            "while (body.firstChild) { body.removeChild(body.firstChild); }" +
-                            "body.appendChild(header);" +
-                            "body.appendChild(lyrics);"
+                            "var content = document.getElementById('mw-content-text');" +
+                            "while (document.head.firstChild) { document.head.removeChild(document.head.firstChild); }" +
+                            "while (document.body.firstChild) { document.body.removeChild(document.body.firstChild); }" +
+                            "var header = document.createElement('h1');" + 
+                            "header.innerHTML = '" + data.artist + ":" + data.song + " Lyrics';" + 
+                            "document.body.appendChild(header);" + 
+                            "var lyrics = content.getElementsByClassName('lyricbox')[0];" +
+                            "lyrics.removeChild(lyrics.firstChild);" +
+                            "document.body.appendChild(lyrics);"
                             );
                     }
                 }
