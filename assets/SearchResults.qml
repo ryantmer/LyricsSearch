@@ -5,15 +5,12 @@ Page {
         layout: StackLayout {
             orientation: LayoutOrientation.TopToBottom
         }
-        topPadding: 20
-        leftPadding: 20
-        rightPadding: 20
-        bottomPadding: 20
         
         Label {
             text: "Search Results"
             horizontalAlignment: HorizontalAlignment.Center
             textStyle.fontSize: FontSize.XXLarge
+            topPadding: 20
         }
         
         Container {
@@ -48,49 +45,44 @@ Page {
             
             listItemComponents: [
                 ListItemComponent {
+                    type: "item"
                     Container {
                         id: itemContainer
                         StandardListItem {
-                            title: itemContainer.ListItem.view.titleText(ListItemData)
-                            description: itemContainer.ListItem.view.subtitleText(ListItemData);
+                            title: ListItemData.song + " - " + ListItemData.artist
+//                            description: itemContainer.ListItem.view.subtitleText(ListItemData)
                         }
+                    }
+                },
+                ListItemComponent {
+                    type: "header"
+                    Header {
+                        title: "Songs from " + ListItemData.album
+                        subtitle: ListItemData.year
                     }
                 }
             ]
             
-            function titleText(data) {
-                if (data.type == "album") {
-                    return "Songs from " + data.album + " (" + data.year + ")";
-                } else if (data.type == "song") {
-                    return data.song + " - " + data.artist;
-                } else {
-                    console.log("Unknown result type: " + data.type);
-                }
-            }
-            
             function subtitleText(data) {
-                if (data.type == "album") {
-                    return "Album by " + data.artist;
-                } else if (data.type == "song") {
-                    if (data.lyrics.indexOf("\n") > -1) {
-                        return data.lyrics.substring(0, data.lyrics.indexOf("\n")) + "...";
-                    } else {
-                        return data.lyrics;
-                    }
+                if (data.lyrics.indexOf("\n") > -1) {
+                    return data.lyrics.substring(0, data.lyrics.indexOf("\n")) + "...";
                 } else {
-                    console.log("Unknown result type: " + data.type);
+                    return data.lyrics;
                 }
             }
             
             onTriggered: {
                 var data = dataModel.data(indexPath);
-                if (!data.url) {
-                    return;
+//                if (!data.url) {
+//                    return;
+//                }
+//                var page = viewLyricsDef.createObject();
+//                page.data = data;
+//                page.setup();
+//                navigationPane.push(page);
+                for (var p in data) {
+                    console.log(p + " = " + data[p]);
                 }
-                var page = viewLyricsDef.createObject();
-                page.data = data;
-                page.setup();
-                navigationPane.push(page);
             }
         }
     }

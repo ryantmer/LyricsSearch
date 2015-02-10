@@ -1,6 +1,7 @@
 #ifndef LYRICSSEARCH_HPP_
 #define LYRICSSEARCH_HPP_
 
+#include "ResultsDataModel.hpp"
 #include <QObject>
 #include <bb/cascades/QListDataModel>
 #include <bb/cascades/NavigationPane>
@@ -27,7 +28,7 @@ public:
 
 private:
     QMapListDataModel *_favourites;
-    QMapListDataModel *_results;
+    ResultsDataModel *_results;
     NavigationPane *_root;
     QNetworkConfigurationManager *_netConfigMan;
     QNetworkAccessManager *_netAccessMan;

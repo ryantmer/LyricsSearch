@@ -19,7 +19,7 @@ LyricsSearch::LyricsSearch() : QObject() {
     _netConfigMan = new QNetworkConfigurationManager(this);
     _netAccessMan = new QNetworkAccessManager(this);
     _favourites = new QMapListDataModel();
-    _results = new QMapListDataModel();
+    _results = new ResultsDataModel();
 
     //Try loading favourites from local file
     QFile file(favouritesPath);
@@ -160,27 +160,38 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
         //Should just end up with a list of songs in all cases
         //User searched for artist
         if (reply->request().attribute(QNetworkRequest::User) == Artist) {
-            QVariantList albums = map.value("albums").toList();
             QString artist = map.value("artist").toString();
-            foreach (QVariant album, albums) {
-                QVariantMap a = QVariantMap();
-                a.insert("type", "album");
-                a.insert("album", album.toMap().value("album").toString());
-                a.insert("artist", artist);
-                a.insert("year", album.toMap().value("year").toString());
-                _results->append(a);
 
-                QVariantList songs = album.toMap().value("songs").toList();
-                foreach (QVariant song, songs) {
-                    QVariantMap s = QVariantMap();
-                    s.insert("type", "song");
-                    s.insert("artist", artist);
-                    s.insert("song", song.toString());
-                    s.insert("lyrics", "");
+            QVariantList albums = map.value("albums").toList();
+            foreach (QVariant a, albums) {
+                QString album = a.toMap().value("album").toString();
+                QString year = a.toMap().value("year").toString();
+                QVariantList songs = a.toMap().value("songs").toList();
+
+                QVariantList newSongs = QVariantList();
+                for (int i = songs.length() - 1; i >= 0; i--) {
+                    QString song = songs[i].toString();
+
+                    QVariantMap newSong = QVariantMap();
+                    newSong.insert("type", "song");
+                    newSong.insert("artist", artist);
+                    newSong.insert("year", year);
+                    newSong.insert("song", song);
+                    newSong.insert("lyrics", "");
                     QString baseUrl = "http://lyrics.wikia.com/";
-                    s.insert("url", baseUrl + artist + ":" + song.toString().replace(" ", "_"));
-                    _results->append(s);
+                    newSong.insert("url", baseUrl + artist + ":" + song.replace(" ", "_"));
+                    qDebug() << "Adding song:" << newSong;
+                    newSongs.append(newSong);
                 }
+                _results->insertList(newSongs);
+
+                QVariantMap newAlbum = QVariantMap();
+                newAlbum.insert("type", "album");
+                newAlbum.insert("artist", artist);
+                newAlbum.insert("album", album);
+                newAlbum.insert("year", year);
+                qDebug() << "Adding album:" << newAlbum;
+                _results->insert(newAlbum);
             }
         }
         //User searched for artist + song
@@ -197,7 +208,8 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 map.insert("artist", info.split(":")[0].replace("_", " "));
                 map.insert("song", info.split(":")[1].replace("_", " "));
             }
-            _results->append(map);
+            qDebug() << "Adding:" << map;
+            _results->insert(map);
         }
         //User searched for artist + album
         else if (reply->request().attribute(QNetworkRequest::User) == Album) {
