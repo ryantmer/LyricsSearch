@@ -44,8 +44,8 @@ LyricsSearch::LyricsSearch() : QObject() {
     QDeclarativeEngine *engine = QmlDocument::defaultDeclarativeEngine();
     QDeclarativeContext *rootContext = engine->rootContext();
     rootContext->setContextProperty("app", this);
-    rootContext->setContextProperty("favouritesDataModel", _favourites);
-    rootContext->setContextProperty("resultsDataModel", _results);
+    rootContext->setContextProperty("favouritesModel", _favourites);
+    rootContext->setContextProperty("resultsModel", _results);
 
     bool ok;
     ok = connect(_netAccessMan, SIGNAL(finished(QNetworkReply*)),
@@ -168,30 +168,30 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 QString year = a.toMap().value("year").toString();
                 QVariantList songs = a.toMap().value("songs").toList();
 
-                QVariantList newSongs = QVariantList();
-                for (int i = songs.length() - 1; i >= 0; i--) {
-                    QString song = songs[i].toString();
-
-                    QVariantMap newSong = QVariantMap();
-                    newSong.insert("type", "song");
-                    newSong.insert("artist", artist);
-                    newSong.insert("year", year);
-                    newSong.insert("song", song);
-                    newSong.insert("lyrics", "");
-                    QString baseUrl = "http://lyrics.wikia.com/";
-                    newSong.insert("url", baseUrl + artist + ":" + song.replace(" ", "_"));
-                    qDebug() << "Adding song:" << newSong;
-                    newSongs.append(newSong);
-                }
-                _results->insertList(newSongs);
-
                 QVariantMap newAlbum = QVariantMap();
                 newAlbum.insert("type", "album");
                 newAlbum.insert("artist", artist);
                 newAlbum.insert("album", album);
                 newAlbum.insert("year", year);
-                qDebug() << "Adding album:" << newAlbum;
-                _results->insert(newAlbum);
+//                qDebug() << "Adding album:" << newAlbum;
+                _results->addResult(newAlbum);
+
+                QVariantList newSongs = QVariantList();
+                foreach (QVariant s, songs) {
+                    QString song = s.toString();
+
+                    QVariantMap newSong = QVariantMap();
+                    newSong.insert("type", "song");
+                    newSong.insert("artist", artist);
+                    newSong.insert("album", album);
+                    newSong.insert("year", year);
+                    newSong.insert("song", song);
+                    newSong.insert("lyrics", "");
+                    QString baseUrl = "http://lyrics.wikia.com/";
+                    newSong.insert("url", baseUrl + artist + ":" + song.replace(" ", "_"));
+//                    qDebug() << "Adding song:" << newSong;
+                    _results->addResult(newSong);
+                }
             }
         }
         //User searched for artist + song
@@ -208,8 +208,8 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 map.insert("artist", info.split(":")[0].replace("_", " "));
                 map.insert("song", info.split(":")[1].replace("_", " "));
             }
-            qDebug() << "Adding:" << map;
-            _results->insert(map);
+//            qDebug() << "Adding single song:" << map;
+            _results->addResult(map);
         }
         //User searched for artist + album
         else if (reply->request().attribute(QNetworkRequest::User) == Album) {
@@ -220,6 +220,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
     }
 
     reply->deleteLater();
+    qDebug() << _results->getInternalDB();
 
     Page *page = _root->top();
     Container *container = page->findChild<Container*>("activityContainer");

@@ -22,7 +22,7 @@ Page {
             layout: StackListLayout {}
             horizontalAlignment: HorizontalAlignment.Fill
             
-            dataModel: favouritesDataModel
+            dataModel: favouritesModel
             
             listItemComponents: [
                 ListItemComponent {
