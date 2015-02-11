@@ -129,6 +129,11 @@ void LyricsSearch::search(QVariantMap query) {
     if (!song.isEmpty()) {
         url.addQueryItem("song", song);
     }
+    if (!artist.isEmpty()) {
+        //This doesn't do anything in the request, but is used when the reply
+        //is received to isolate the album the user searched for.
+        url.addQueryItem("album", album);
+    }
 
     QNetworkRequest req(url);
     if (!song.isEmpty()) {
@@ -213,6 +218,46 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
         }
         //User searched for artist + album
         else if (reply->request().attribute(QNetworkRequest::User) == Album) {
+            //Results are the same as just artist; have to extract specific album
+            QString searchedAlbum = reply->request().url().queryItemValue("album").trimmed();
+            qDebug() << Q_FUNC_INFO << searchedAlbum;
+            QString artist = map.value("artist").toString();
+
+            QVariantList albums = map.value("albums").toList();
+            foreach (QVariant a, albums) {
+                QString album = a.toMap().value("album").toString();
+
+                if (album.contains(searchedAlbum)) {
+                    //We've found the album the user searched for
+                    QString year = a.toMap().value("year").toString();
+                    QVariantList songs = a.toMap().value("songs").toList();
+
+                    QVariantMap newAlbum = QVariantMap();
+                    newAlbum.insert("type", "album");
+                    newAlbum.insert("artist", artist);
+                    newAlbum.insert("album", album);
+                    newAlbum.insert("year", year);
+    //                qDebug() << "Adding album:" << newAlbum;
+                    _results->addResult(newAlbum);
+
+                    QVariantList newSongs = QVariantList();
+                    foreach (QVariant s, songs) {
+                        QString song = s.toString();
+
+                        QVariantMap newSong = QVariantMap();
+                        newSong.insert("type", "song");
+                        newSong.insert("artist", artist);
+                        newSong.insert("album", album);
+                        newSong.insert("year", year);
+                        newSong.insert("song", song);
+                        newSong.insert("lyrics", "");
+                        QString baseUrl = "http://lyrics.wikia.com/";
+                        newSong.insert("url", baseUrl + artist + ":" + song.replace(" ", "_"));
+    //                    qDebug() << "Adding song:" << newSong;
+                        _results->addResult(newSong);
+                    }
+                }
+            }
         }
     } else {
         qWarning() << Q_FUNC_INFO << "Reply from" << reply->url() << "contains error" << reply->errorString();
