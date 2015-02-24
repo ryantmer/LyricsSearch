@@ -4,6 +4,7 @@
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/ListView>
 #include <bb/cascades/Container>
+#include <bb/cascades/Label>
 #include <bb/data/JsonDataAccess>
 #include <bb/system/SystemToast>
 #include <bb/system/SystemUiPosition>
@@ -41,6 +42,9 @@ LyricsSearch::LyricsSearch() : QObject() {
     _root = qml->createRootObject<NavigationPane>();
     Application::instance()->setScene(_root);
 
+    qml = QmlDocument::create("asset:///resources/ActivityDialog.qml").parent(this);
+    _activityDialog = qml->createRootObject<Dialog>();
+
     QDeclarativeEngine *engine = QmlDocument::defaultDeclarativeEngine();
     QDeclarativeContext *rootContext = engine->rootContext();
     rootContext->setContextProperty("app", this);
@@ -50,6 +54,12 @@ LyricsSearch::LyricsSearch() : QObject() {
     bool ok;
     ok = connect(_netAccessMan, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(onFinished(QNetworkReply*)));
+    Q_ASSERT(ok);
+    ok = connect(this, SIGNAL(activityStarted(QString)),
+            this, SLOT(onActivityStarted(QString)));
+    Q_ASSERT(ok);
+    ok = connect(this, SIGNAL(activityEnded()),
+            this, SLOT(onActivityEnded()));
     Q_ASSERT(ok);
     Q_UNUSED(ok);
 }
@@ -101,6 +111,16 @@ void LyricsSearch::removeFavourite(QVariantMap fav) {
     }
 }
 
+void LyricsSearch::onActivityStarted(QString message) {
+    Label *activityText = _activityDialog->findChild<Label*>("activityText");
+    activityText->setText(message);
+    _activityDialog->open();
+}
+
+void LyricsSearch::onActivityEnded() {
+    _activityDialog->close();
+}
+
 void LyricsSearch::toast(QString message) {
     SystemToast *toast = new SystemToast(this);
     toast->setBody(message);
@@ -109,13 +129,7 @@ void LyricsSearch::toast(QString message) {
 }
 
 void LyricsSearch::search(QVariantMap query) {
-    Page *page = _root->top();
-    Container *container = page->findChild<Container*>("activityContainer");
-    if (container) {
-        container->setVisible(true);
-    } else {
-        qDebug() << Q_FUNC_INFO << "No activity container on top page";
-    }
+    emit activityStarted();
 
     QString artist = query.value("artist").toString();
     QString song = query.value("song").toString();
@@ -149,6 +163,7 @@ void LyricsSearch::search(QVariantMap query) {
 }
 
 void LyricsSearch::onFinished(QNetworkReply *reply) {
+    emit activityStarted();
     QString response = reply->readAll();
     qDebug() << Q_FUNC_INFO << response;
 
@@ -178,7 +193,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 newAlbum.insert("artist", artist);
                 newAlbum.insert("album", album);
                 newAlbum.insert("year", year);
-//                qDebug() << "Adding album:" << newAlbum;
+                qDebug() << "Adding album:" << newAlbum;
                 _results->addResult(newAlbum);
 
                 QVariantList newSongs = QVariantList();
@@ -194,7 +209,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                     newSong.insert("lyrics", "");
                     QString baseUrl = "http://lyrics.wikia.com/";
                     newSong.insert("url", baseUrl + artist + ":" + song.replace(" ", "_"));
-//                    qDebug() << "Adding song:" << newSong;
+                    qDebug() << "Adding song:" << newSong;
                     _results->addResult(newSong);
                 }
             }
@@ -202,9 +217,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
         //User searched for artist + song
         else if (reply->request().attribute(QNetworkRequest::User) == Song) {
             map.insert("type", "song");
-            if (map.value("lyrics").toString() == "Not found") {
-                map.remove("url");
-            } else {
+            if (map.value("lyrics").toString() != "Not found") {
                 //Fix special characters in URL
                 QString url = QUrl::fromPercentEncoding(map.value("url").toUrl().toString().toUtf8());
                 map.insert("url", url);
@@ -212,9 +225,9 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                 QString info = url.split("http://lyrics.wikia.com/", QString::SkipEmptyParts)[0];
                 map.insert("artist", info.split(":")[0].replace("_", " "));
                 map.insert("song", info.split(":")[1].replace("_", " "));
+                qDebug() << "Adding single song:" << map;
+                _results->addResult(map);
             }
-//            qDebug() << "Adding single song:" << map;
-            _results->addResult(map);
         }
         //User searched for artist + album
         else if (reply->request().attribute(QNetworkRequest::User) == Album) {
@@ -227,7 +240,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
             foreach (QVariant a, albums) {
                 QString album = a.toMap().value("album").toString();
 
-                if (album.contains(searchedAlbum)) {
+                if (album.toLower().contains(searchedAlbum.toLower())) {
                     //We've found the album the user searched for
                     QString year = a.toMap().value("year").toString();
                     QVariantList songs = a.toMap().value("songs").toList();
@@ -237,7 +250,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                     newAlbum.insert("artist", artist);
                     newAlbum.insert("album", album);
                     newAlbum.insert("year", year);
-    //                qDebug() << "Adding album:" << newAlbum;
+                    qDebug() << "Adding album:" << newAlbum;
                     _results->addResult(newAlbum);
 
                     QVariantList newSongs = QVariantList();
@@ -253,7 +266,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
                         newSong.insert("lyrics", "");
                         QString baseUrl = "http://lyrics.wikia.com/";
                         newSong.insert("url", baseUrl + artist + ":" + song.replace(" ", "_"));
-    //                    qDebug() << "Adding song:" << newSong;
+                        qDebug() << "Adding song:" << newSong;
                         _results->addResult(newSong);
                     }
                 }
@@ -265,13 +278,7 @@ void LyricsSearch::onFinished(QNetworkReply *reply) {
     }
 
     reply->deleteLater();
-    qDebug() << _results->getInternalDB();
+    qDebug() << Q_FUNC_INFO << _results->getInternalDB();
 
-    Page *page = _root->top();
-    Container *container = page->findChild<Container*>("activityContainer");
-    if (container) {
-        container->setVisible(false);
-    } else {
-        qDebug() << Q_FUNC_INFO << "No activity container on top page";
-    }
+    emit activityEnded();
 }

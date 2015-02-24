@@ -5,15 +5,21 @@ ResultsDataModel::ResultsDataModel(QObject *parent) : DataModel(parent) {}
 void ResultsDataModel::clear() {
     _internalDB.clear();
     emit itemsChanged(bb::cascades::DataModelChangeType::AddRemove);
+    emit emptyChanged(empty());
 }
 
 void ResultsDataModel::addResult(QVariantMap result) {
     _internalDB.append(result);
     emit itemsChanged(bb::cascades::DataModelChangeType::AddRemove);
+    emit emptyChanged(empty());
 }
 
 QVariantList ResultsDataModel::getInternalDB() {
     return _internalDB;
+}
+
+bool ResultsDataModel::empty() {
+    return _internalDB.length() == 0;
 }
 
 int ResultsDataModel::childCount(const QVariantList &indexPath) {

@@ -1,11 +1,18 @@
 import bb.cascades 1.2
 
 Page {
-    property variant data
-    
-    function setup() {
-        webView.url = data.url;
-    }
+    property variant data: null
+    property alias lyricsUrl: webView.url
+    actions: [
+        ActionItem {
+            title: "Add Favourite"
+            imageSource: "asset:///images/favourite.png"
+            ActionBar.placement: ActionBarPlacement.OnBar
+            onTriggered: {
+                app.addFavourite(data);
+            }
+        }
+    ]
     
     Container {
         layout: DockLayout {}
@@ -16,7 +23,6 @@ Page {
             verticalAlignment: VerticalAlignment.Center
             preferredHeight: 100
         }
-        
         ScrollView {
             horizontalAlignment: HorizontalAlignment.Fill
             verticalAlignment: VerticalAlignment.Fill
@@ -27,7 +33,6 @@ Page {
             
             WebView {
                 id: webView
-                
                 onLoadingChanged: {
                     if (loadRequest.status == WebLoadStatus.Started) {
                         activity.start();
@@ -47,7 +52,6 @@ Page {
                             );
                     }
                 }
-                
                 onJavaScriptResult: {
                     activity.stop();
                     activity.visible = false;
@@ -56,16 +60,4 @@ Page {
             }
         }
     }
-    
-    actions: [
-        ActionItem {
-            title: "Add Favourite"
-            imageSource: "asset:///images/favourite.png"
-            ActionBar.placement: ActionBarPlacement.OnBar
-            
-            onTriggered: {
-                app.addFavourite(data);
-            }
-        }
-    ]
 }

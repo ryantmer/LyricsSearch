@@ -2,28 +2,58 @@ import bb.cascades 1.2
 
 NavigationPane {
     id: navigationPane
-    
     Menu.definition: MenuDefinition {
         actions: [
             ActionItem {
                 title: "About"
                 imageSource: "asset:///images/about.png"
                 onTriggered: {
-                    navigationPane.push(about);
+                    navigationPane.push(aboutDef.createObject().open());
+                }
+            },
+            ActionItem {
+                title: "Help"
+                imageSource: "asset:///images/help.png"
+                onTriggered: {
+                    navigationPane.push(helpDef.createObject().open());
                 }
             }
         ]
     }
+    attachedObjects: [
+        ComponentDefinition {
+            id: searchResultsDef
+            content: SearchResults {}
+        },
+        ComponentDefinition {
+            id: favouritesDef
+            content: Favourites {}
+        },
+        ComponentDefinition {
+            id: aboutDef
+            content: About {}
+        },
+        ComponentDefinition {
+            id: helpDef
+            content: Help {}
+        }
+    ]
 
     Page {
-        titleBar: TitleBar {
-            title: "Search for Lyrics"
-        }
+        titleBar: TitleBar { title: "Search for Lyrics" }
+        actions: [
+            ActionItem {
+                title: "Favourites"
+                imageSource: "asset:///images/favourite.png"
+                ActionBar.placement: ActionBarPlacement.OnBar
+                onTriggered: {
+                    navigationPane.push(favouritesDef.createObject());
+                }
+            }
+        ]
 
         Container {
-            layout: StackLayout {
-                orientation: LayoutOrientation.TopToBottom
-            }
+            layout: StackLayout { orientation: LayoutOrientation.TopToBottom }
             topPadding: 20
             rightPadding: 20
             leftPadding: 20
@@ -32,7 +62,7 @@ NavigationPane {
             Label {
                 text: "Search For Lyrics"
                 horizontalAlignment: HorizontalAlignment.Center
-                textStyle.fontSize: FontSize.XXLarge
+                textStyle.fontSize: FontSize.XLarge
             }
             TextField {
                 id: songField
@@ -63,39 +93,16 @@ NavigationPane {
                     } else {
                         warningLabel.visible = false;
                     }
-                    
-                    navigationPane.push(searchResultsPage);
                     var query = {};
                     query.song = songField.text;
                     query.artist = artistField.text;
                     query.album = albumField.text;
+                    var page = searchResultsDef.createObject();
+                    page.data = query;
+                    navigationPane.push(page);
                     app.search(query);
                 }
             }
         }
-
-        actions: [
-            ActionItem {
-                title: "Favourites"
-                imageSource: "asset:///images/favourite.png"
-                ActionBar.placement: ActionBarPlacement.OnBar
-    
-                onTriggered: {
-                    navigationPane.push(favouritesPage);
-                }
-            }
-        ]
     }
-
-    attachedObjects: [
-        Favourites {
-            id: favouritesPage
-        },
-        SearchResults {
-            id: searchResultsPage
-        },
-        About {
-            id: about
-        }
-    ]
 }

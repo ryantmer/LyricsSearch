@@ -1,10 +1,13 @@
 1
-9
+12
 About.qml
 Favourites.qml
+Help.qml
 images/about.png
 images/favourite.png
+images/help.png
 images/search.png
+resources/ActivityDialog.qml
 resources/favourites.json
 Search.qml
 SearchResults.qml

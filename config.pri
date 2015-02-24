@@ -38,12 +38,15 @@ config_pri_assets {
     OTHER_FILES += \
         $$quote($$BASEDIR/assets/About.qml) \
         $$quote($$BASEDIR/assets/Favourites.qml) \
+        $$quote($$BASEDIR/assets/Help.qml) \
         $$quote($$BASEDIR/assets/Search.qml) \
         $$quote($$BASEDIR/assets/SearchResults.qml) \
         $$quote($$BASEDIR/assets/ViewLyrics.qml) \
         $$quote($$BASEDIR/assets/images/about.png) \
         $$quote($$BASEDIR/assets/images/favourite.png) \
+        $$quote($$BASEDIR/assets/images/help.png) \
         $$quote($$BASEDIR/assets/images/search.png) \
+        $$quote($$BASEDIR/assets/resources/ActivityDialog.qml) \
         $$quote($$BASEDIR/assets/resources/favourites.json)
 }
 

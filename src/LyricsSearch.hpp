@@ -5,6 +5,7 @@
 #include <QObject>
 #include <bb/cascades/QListDataModel>
 #include <bb/cascades/NavigationPane>
+#include <bb/cascades/Dialog>
 
 using namespace bb::cascades;
 
@@ -30,10 +31,17 @@ private:
     QMapListDataModel *_favourites;
     ResultsDataModel *_results;
     NavigationPane *_root;
+    Dialog *_activityDialog;
     QNetworkConfigurationManager *_netConfigMan;
     QNetworkAccessManager *_netAccessMan;
 
+signals:
+    void activityStarted(QString message="Searching...");
+    void activityEnded();
+
 private slots:
+    void onActivityStarted(QString message="Searching...");
+    void onActivityEnded();
     void onFinished(QNetworkReply *reply);
 };
 
