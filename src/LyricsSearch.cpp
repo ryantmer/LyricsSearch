@@ -37,6 +37,12 @@ LyricsSearch::LyricsSearch() : QObject() {
         qDebug() << Q_FUNC_INFO << "New favourite added:" << data;
     }
 
+    QDeclarativeEngine *engine = QmlDocument::defaultDeclarativeEngine();
+    QDeclarativeContext *rootContext = engine->rootContext();
+    rootContext->setContextProperty("app", this);
+    rootContext->setContextProperty("favouritesModel", _favourites);
+    rootContext->setContextProperty("resultsModel", _results);
+
     QmlDocument *qml = QmlDocument::create("asset:///Search.qml").parent(this);
     qml->setContextProperty("app", this);
     _root = qml->createRootObject<NavigationPane>();
@@ -44,12 +50,6 @@ LyricsSearch::LyricsSearch() : QObject() {
 
     qml = QmlDocument::create("asset:///resources/ActivityDialog.qml").parent(this);
     _activityDialog = qml->createRootObject<Dialog>();
-
-    QDeclarativeEngine *engine = QmlDocument::defaultDeclarativeEngine();
-    QDeclarativeContext *rootContext = engine->rootContext();
-    rootContext->setContextProperty("app", this);
-    rootContext->setContextProperty("favouritesModel", _favourites);
-    rootContext->setContextProperty("resultsModel", _results);
 
     bool ok;
     ok = connect(_netAccessMan, SIGNAL(finished(QNetworkReply*)),
