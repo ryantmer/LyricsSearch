@@ -33,12 +33,17 @@ Page {
             
             WebView {
                 id: webView
+                onLoadProgressChanged: {
+                    progressIndicator.value = loadProgress / 100.0;
+                }
                 onLoadingChanged: {
                     if (loadRequest.status == WebLoadStatus.Started) {
+                        progressIndicator.opacity = 1.0;
                         activity.start();
                         activity.visible = true;
                         webView.opacity = 0.1;
                     } else if (loadRequest.status == WebLoadStatus.Succeeded) {
+                        progressIndicator.opacity = 0.0;
                         webView.evaluateJavaScript(
                             "var content = document.getElementById('mw-content-text');" +
                             "while (document.head.firstChild) { document.head.removeChild(document.head.firstChild); }" +
@@ -57,6 +62,16 @@ Page {
                     activity.visible = false;
                     webView.opacity = 1.0;
                 }
+            }
+        }
+        Container {
+            bottomPadding: 25
+            horizontalAlignment: HorizontalAlignment.Center
+            verticalAlignment: VerticalAlignment.Bottom
+            
+            ProgressIndicator {
+                id: progressIndicator
+                opacity: 0
             }
         }
     }
