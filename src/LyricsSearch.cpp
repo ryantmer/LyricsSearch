@@ -139,6 +139,7 @@ void LyricsSearch::search(QVariantMap query) {
     url.setUrl(QString("http://lyrics.wikia.com/api.php"));
 
     url.addQueryItem("fmt", "realjson");
+    url.addQueryItem("action", "lyrics");
     url.addQueryItem("artist", artist);
     if (!song.isEmpty()) {
         url.addQueryItem("song", song);
